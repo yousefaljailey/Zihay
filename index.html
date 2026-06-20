@@ -46,9 +46,114 @@
   .circle-cat:hover img { transform: scale(1.08); }
 
   input:focus-visible, a:focus-visible, button:focus-visible { outline: 2px solid #4A2E1F; outline-offset: 2px; }
+
+  /* --- Admin system --- */
+  [contenteditable="true"]:hover, [contenteditable="true"]:focus {
+    outline: 1px dashed #DDAE3A; outline-offset: 3px; cursor: text; background-color: rgba(246,221,139,0.10);
+  }
+  .img-edit-btn { opacity: 0; transition: opacity .2s ease; }
+  .editable-img:hover .img-edit-btn { opacity: 1; }
+  .remove-item { font-weight: 700; }
+  #adminBar { box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
 </style>
 </head>
 <body class="antialiased">
+
+<!-- ===================== Admin: login modal ===================== -->
+<div id="loginModalBg" class="fixed inset-0 z-[200] bg-black/50" style="display:none;">
+  <div class="absolute inset-0 flex items-center justify-center p-5">
+    <div class="bg-white rounded-lg p-8 w-full max-w-sm relative">
+      <button type="button" id="lmClose" class="absolute top-3 right-3 text-cocoa-400 hover:text-cocoa-700 text-xl leading-none">&times;</button>
+      <h3 class="font-extrabold uppercase text-lg text-cocoa-700 mb-5">Admin Login</h3>
+      <label class="block text-xs font-bold uppercase tracking-wide text-cocoa-600 mb-1">Email</label>
+      <input id="lmEmail" type="email" autocomplete="username" class="w-full h-10 border border-cocoa-200 rounded px-3 text-sm mb-4 focus-visible:outline-none focus-visible:border-cocoa-500" />
+      <label class="block text-xs font-bold uppercase tracking-wide text-cocoa-600 mb-1">Password</label>
+      <input id="lmPass" type="password" autocomplete="current-password" class="w-full h-10 border border-cocoa-200 rounded px-3 text-sm mb-2 focus-visible:outline-none focus-visible:border-cocoa-500" />
+      <p id="lmErr" class="text-red-600 text-xs mb-3 min-h-[16px]"></p>
+      <button type="button" id="lmSubmit" class="w-full bg-cocoa-600 text-cream rounded py-2.5 text-sm font-bold uppercase tracking-wide hover:bg-cocoa-700 transition-colors">Log In</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== Admin: top bar (shown after login) ===================== -->
+<div id="adminBar" class="fixed top-0 left-0 right-0 z-[100] bg-cocoa-900 text-cream items-center justify-between px-5 py-2.5" style="display:none;">
+  <p class="text-xs font-bold uppercase tracking-wider">ZIHAY Admin — editing live page</p>
+  <div class="flex items-center gap-4">
+    <button type="button" id="changeTokenBtn" class="text-[11px] underline text-cream/70 hover:text-cream">Reset GitHub token</button>
+    <button type="button" id="publishBtn" class="bg-honey-300 text-cocoa-900 rounded px-4 py-1.5 text-xs font-bold uppercase tracking-wide hover:bg-honey-200 transition-colors">Save &amp; Publish</button>
+    <button type="button" id="logoutBtn" class="text-[11px] underline text-cream/70 hover:text-cream">Log out</button>
+  </div>
+</div>
+
+<!-- ===================== Admin: templates for "Add" actions ===================== -->
+<template id="tpl-add-circle">
+  <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+    <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+    <a href="#" class="circle-cat text-center block">
+      <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+        <img src="https://placehold.co/220x220/E3E0D5/2A1810?text=New" alt="New category" class="w-full h-full object-cover" />
+        <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+        <input type="file" accept="image/*" class="img-file-input hidden" />
+      </div>
+      <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">New Category</p>
+    </a>
+  </div>
+</template>
+
+<template id="tpl-add-trending">
+  <div class="grid-item relative group">
+    <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-6 h-6 rounded-full bg-cocoa-700 text-white text-xs leading-6" style="display:none">&times;</button>
+    <a href="#" class="img-zoom block editable-img relative">
+      <img src="https://placehold.co/700x880/E3E0D5/2A1810?text=New+Image" alt="New trending image" class="w-full h-80 sm:h-[440px] object-cover" />
+      <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-xs font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change Image</button>
+      <input type="file" accept="image/*" class="img-file-input hidden" />
+    </a>
+  </div>
+</template>
+
+<template id="tpl-add-shoptrend">
+  <div class="grid-item relative group">
+    <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+    <a href="#" class="block">
+      <div class="img-zoom editable-img relative">
+        <img src="https://placehold.co/360x460/E3E0D5/2A1810?text=New" alt="New trend" class="w-full h-44 sm:h-56 object-cover" />
+        <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+        <input type="file" accept="image/*" class="img-file-input hidden" />
+      </div>
+      <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center" data-editable="text">New Trend</p>
+    </a>
+  </div>
+</template>
+
+<template id="tpl-add-featured">
+  <div class="grid-item relative group">
+    <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-6 h-6 rounded-full bg-cocoa-700 text-white text-xs leading-6" style="display:none">&times;</button>
+    <a href="#" class="img-zoom block editable-img relative">
+      <img src="https://placehold.co/700x500/E3E0D5/2A1810?text=New+Image" alt="New featured image" class="w-full h-60 sm:h-72 object-cover" />
+      <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-xs font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change Image</button>
+      <input type="file" accept="image/*" class="img-file-input hidden" />
+    </a>
+  </div>
+</template>
+
+<template id="tpl-add-discover">
+  <div class="grid-item relative group">
+    <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-6 h-6 rounded-full bg-cocoa-700 text-white text-xs leading-6" style="display:none">&times;</button>
+    <a href="#" class="img-zoom block editable-img relative">
+      <img src="https://placehold.co/640x800/E3E0D5/2A1810?text=New+Image" alt="New lookbook image" class="w-full h-72 sm:h-96 object-cover" />
+      <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-xs font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change Image</button>
+      <input type="file" accept="image/*" class="img-file-input hidden" />
+    </a>
+  </div>
+</template>
+
+<template id="tpl-add-navlink">
+  <div class="nav-item-wrap relative inline-flex items-center gap-1 shrink-0 group">
+    <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-4 h-4 rounded-full bg-cocoa-700 text-white text-[10px] leading-4" style="display:none">&times;</button>
+    <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap" data-editable="text">New Link</a>
+    <button type="button" class="admin-only link-edit-btn text-cocoa-400 text-[10px]" style="display:none" data-on-display="inline-flex" title="Edit link URL">&#128279;</button>
+  </div>
+</template>
 
 <!-- Promo bar -->
 <div class="bg-cocoa-700 text-cream text-center text-[12px] sm:text-[13px] font-medium py-2 tracking-wide relative">
@@ -57,7 +162,7 @@
 </div>
 
 <!-- Header -->
-<header class="bg-white sticky top-0 z-40">
+<header id="siteHeader" class="bg-white sticky top-0 z-40">
   <div class="max-w-[1400px] mx-auto px-5 sm:px-8 py-4 flex items-center justify-between gap-4">
     <div class="hidden md:flex items-center w-72">
       <div class="relative w-full">
@@ -86,15 +191,48 @@
   </div>
 
   <nav class="border-t border-cocoa-100">
-    <div class="max-w-[1400px] mx-auto px-5 sm:px-8 flex items-center justify-center gap-6 sm:gap-9 overflow-x-auto">
-      <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap">New In</a>
-      <a href="#categories" class="nav-link active py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap">Dresses</a>
-      <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap">Activewear</a>
-      <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap">Swimwear</a>
-      <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap">Everyday</a>
-      <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap">Accessories</a>
-      <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap">Occasion</a>
-      <a href="#" class="py-4 text-[13px] font-bold uppercase tracking-wide text-honey-400 whitespace-nowrap hover:text-honey-300 transition-colors">Sale</a>
+    <div id="navMenu" class="max-w-[1400px] mx-auto px-5 sm:px-8 flex items-center justify-center gap-6 sm:gap-9 overflow-x-auto">
+      <div class="nav-item-wrap relative inline-flex items-center gap-1 shrink-0 group">
+        <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-4 h-4 rounded-full bg-cocoa-700 text-white text-[10px] leading-4" style="display:none">&times;</button>
+        <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap" data-editable="text">New In</a>
+        <button type="button" class="admin-only link-edit-btn text-cocoa-400 text-[10px]" style="display:none" data-on-display="inline-flex" title="Edit link URL">&#128279;</button>
+      </div>
+      <div class="nav-item-wrap relative inline-flex items-center gap-1 shrink-0 group">
+        <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-4 h-4 rounded-full bg-cocoa-700 text-white text-[10px] leading-4" style="display:none">&times;</button>
+        <a href="#categories" class="nav-link active py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap" data-editable="text">Dresses</a>
+        <button type="button" class="admin-only link-edit-btn text-cocoa-400 text-[10px]" style="display:none" data-on-display="inline-flex" title="Edit link URL">&#128279;</button>
+      </div>
+      <div class="nav-item-wrap relative inline-flex items-center gap-1 shrink-0 group">
+        <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-4 h-4 rounded-full bg-cocoa-700 text-white text-[10px] leading-4" style="display:none">&times;</button>
+        <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap" data-editable="text">Activewear</a>
+        <button type="button" class="admin-only link-edit-btn text-cocoa-400 text-[10px]" style="display:none" data-on-display="inline-flex" title="Edit link URL">&#128279;</button>
+      </div>
+      <div class="nav-item-wrap relative inline-flex items-center gap-1 shrink-0 group">
+        <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-4 h-4 rounded-full bg-cocoa-700 text-white text-[10px] leading-4" style="display:none">&times;</button>
+        <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap" data-editable="text">Swimwear</a>
+        <button type="button" class="admin-only link-edit-btn text-cocoa-400 text-[10px]" style="display:none" data-on-display="inline-flex" title="Edit link URL">&#128279;</button>
+      </div>
+      <div class="nav-item-wrap relative inline-flex items-center gap-1 shrink-0 group">
+        <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-4 h-4 rounded-full bg-cocoa-700 text-white text-[10px] leading-4" style="display:none">&times;</button>
+        <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap" data-editable="text">Everyday</a>
+        <button type="button" class="admin-only link-edit-btn text-cocoa-400 text-[10px]" style="display:none" data-on-display="inline-flex" title="Edit link URL">&#128279;</button>
+      </div>
+      <div class="nav-item-wrap relative inline-flex items-center gap-1 shrink-0 group">
+        <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-4 h-4 rounded-full bg-cocoa-700 text-white text-[10px] leading-4" style="display:none">&times;</button>
+        <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap" data-editable="text">Accessories</a>
+        <button type="button" class="admin-only link-edit-btn text-cocoa-400 text-[10px]" style="display:none" data-on-display="inline-flex" title="Edit link URL">&#128279;</button>
+      </div>
+      <div class="nav-item-wrap relative inline-flex items-center gap-1 shrink-0 group">
+        <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-4 h-4 rounded-full bg-cocoa-700 text-white text-[10px] leading-4" style="display:none">&times;</button>
+        <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap" data-editable="text">Occasion</a>
+        <button type="button" class="admin-only link-edit-btn text-cocoa-400 text-[10px]" style="display:none" data-on-display="inline-flex" title="Edit link URL">&#128279;</button>
+      </div>
+      <div class="nav-item-wrap relative inline-flex items-center gap-1 shrink-0 group">
+        <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-4 h-4 rounded-full bg-cocoa-700 text-white text-[10px] leading-4" style="display:none">&times;</button>
+        <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-honey-400 whitespace-nowrap hover:text-honey-300 transition-colors" data-editable="text">Sale</a>
+        <button type="button" class="admin-only link-edit-btn text-cocoa-400 text-[10px]" style="display:none" data-on-display="inline-flex" title="Edit link URL">&#128279;</button>
+      </div>
+      <button type="button" class="admin-only py-4 text-[13px] font-bold text-cocoa-400 whitespace-nowrap" style="display:none" data-on-display="inline-flex" data-add-template="tpl-add-navlink">+ Add Link</button>
     </div>
   </nav>
 </header>
@@ -103,85 +241,148 @@
 
   <!-- Hero -->
   <section class="relative">
-    <img src="https://placehold.co/1900x700/CBA98A/CBA98A" alt="ZIHAY new season campaign" class="w-full h-[420px] sm:h-[560px] lg:h-[650px] object-cover" />
-    <div class="absolute inset-0 bg-gradient-to-t from-cocoa-900/55 via-transparent to-transparent"></div>
+    <div class="editable-img relative">
+      <img src="https://placehold.co/1900x700/CBA98A/CBA98A" alt="ZIHAY new season campaign" class="w-full h-[420px] sm:h-[560px] lg:h-[650px] object-cover" />
+      <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/30 text-white text-sm font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change Hero Image</button>
+      <input type="file" accept="image/*" class="img-file-input hidden" />
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-t from-cocoa-900/55 via-transparent to-transparent pointer-events-none"></div>
     <div class="absolute left-5 sm:left-12 bottom-10 sm:bottom-14 max-w-xl">
-      <h1 class="text-white font-extrabold uppercase tracking-tight text-3xl sm:text-5xl lg:text-6xl leading-[1.05]">New Season<br/>Must Haves</h1>
-      <a href="#categories" class="inline-flex items-center bg-white text-cocoa-700 mt-6 px-6 py-3 text-xs font-bold uppercase tracking-wider hover:bg-cream transition-colors">Shop Now</a>
+      <h1 class="text-white font-extrabold uppercase tracking-tight text-3xl sm:text-5xl lg:text-6xl leading-[1.05]" data-editable="text">New Season<br/>Must Haves</h1>
+      <div class="mt-6 flex items-center gap-3">
+        <a href="#categories" class="inline-flex items-center bg-white text-cocoa-700 px-6 py-3 text-xs font-bold uppercase tracking-wider hover:bg-cream transition-colors" data-editable="text">Shop Now</a>
+        <button type="button" class="admin-only link-edit-btn text-white text-[11px] underline" style="display:none" data-on-display="inline-flex">Edit link</button>
+      </div>
     </div>
   </section>
 
   <!-- Category circles -->
   <section id="categories" class="bg-ecru py-10 sm:py-12">
     <div class="max-w-[1400px] mx-auto px-5 sm:px-8">
-      <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700 mb-7">ZIHAY Women's</h2>
-      <div class="flex gap-6 sm:gap-8 overflow-x-auto pb-2 lg:grid lg:grid-cols-11 lg:gap-4">
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/E3CDB8/4A2E1F?text=Dress" alt="Dresses" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Dresses</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/A8CDEC/2A1810?text=Abaya" alt="Abayas" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Abayas</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/F6DD8B/2A1810?text=Active" alt="Activewear" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Activewear</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/9C6E4E/FAF6EF?text=Swim" alt="Swimwear" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Swimwear</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/CBA98A/2A1810?text=Tops" alt="Tops & Tunics" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Tops &amp; Tunics</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/E3CDB8/4A2E1F?text=Trousers" alt="Trousers" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Trousers</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/A8CDEC/2A1810?text=Skirts" alt="Skirts" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Skirts</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/F6DD8B/2A1810?text=Hijabs" alt="Hijabs & Scarves" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Hijabs &amp; Scarves</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/6E4530/FAF6EF?text=Outer" alt="Outerwear" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Outerwear</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/CBA98A/2A1810?text=Lounge" alt="Loungewear" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Loungewear</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/E3CDB8/4A2E1F?text=Acc" alt="Accessories" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Accessories</p>
-        </a>
+      <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700 mb-7" data-editable="text">ZIHAY Women's</h2>
+      <div id="categoryRow" class="flex gap-6 sm:gap-8 overflow-x-auto pb-2 lg:flex-wrap">
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/E3CDB8/4A2E1F?text=Dress" alt="Dresses" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Dresses</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/A8CDEC/2A1810?text=Abaya" alt="Abayas" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Abayas</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/F6DD8B/2A1810?text=Active" alt="Activewear" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Activewear</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/9C6E4E/FAF6EF?text=Swim" alt="Swimwear" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Swimwear</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/CBA98A/2A1810?text=Tops" alt="Tops & Tunics" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Tops &amp; Tunics</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/E3CDB8/4A2E1F?text=Trousers" alt="Trousers" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Trousers</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/A8CDEC/2A1810?text=Skirts" alt="Skirts" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Skirts</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/F6DD8B/2A1810?text=Hijabs" alt="Hijabs & Scarves" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Hijabs &amp; Scarves</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/6E4530/FAF6EF?text=Outer" alt="Outerwear" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Outerwear</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/CBA98A/2A1810?text=Lounge" alt="Loungewear" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Loungewear</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/E3CDB8/4A2E1F?text=Acc" alt="Accessories" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Accessories</p>
+          </a>
+        </div>
+        <button type="button" class="admin-only shrink-0 w-24 sm:w-28 h-24 sm:h-28 rounded-full border-2 border-dashed border-cocoa-300 text-cocoa-500 text-xs font-bold uppercase items-center justify-center" style="display:none" data-on-display="flex" data-add-template="tpl-add-circle" data-add-target="categoryRow">+ Add</button>
       </div>
     </div>
   </section>
@@ -189,17 +390,33 @@
   <!-- Trending now -->
   <section class="bg-white py-10 sm:py-12">
     <div class="max-w-[1400px] mx-auto px-5 sm:px-8">
-      <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700 mb-6">Trending Now</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-1">
-        <a href="#" class="img-zoom block">
-          <img src="https://placehold.co/700x880/E3CDB8/2A1810?text=Trending+1" alt="Trending look 1" class="w-full h-80 sm:h-[440px] object-cover" />
-        </a>
-        <a href="#" class="img-zoom block">
-          <img src="https://placehold.co/700x880/CBA98A/2A1810?text=Trending+2" alt="Trending look 2" class="w-full h-80 sm:h-[440px] object-cover" />
-        </a>
-        <a href="#" class="img-zoom block">
-          <img src="https://placehold.co/700x880/A8CDEC/2A1810?text=Trending+3" alt="Trending look 3" class="w-full h-80 sm:h-[440px] object-cover" />
-        </a>
+      <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700 mb-6" data-editable="text">Trending Now</h2>
+      <div id="trendingGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-1">
+        <div class="grid-item relative group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-6 h-6 rounded-full bg-cocoa-700 text-white text-xs leading-6" style="display:none">&times;</button>
+          <a href="#" class="img-zoom block editable-img relative">
+            <img src="https://placehold.co/700x880/E3CDB8/2A1810?text=Trending+1" alt="Trending look 1" class="w-full h-80 sm:h-[440px] object-cover" />
+            <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-xs font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change Image</button>
+            <input type="file" accept="image/*" class="img-file-input hidden" />
+          </a>
+        </div>
+        <div class="grid-item relative group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-6 h-6 rounded-full bg-cocoa-700 text-white text-xs leading-6" style="display:none">&times;</button>
+          <a href="#" class="img-zoom block editable-img relative">
+            <img src="https://placehold.co/700x880/CBA98A/2A1810?text=Trending+2" alt="Trending look 2" class="w-full h-80 sm:h-[440px] object-cover" />
+            <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-xs font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change Image</button>
+            <input type="file" accept="image/*" class="img-file-input hidden" />
+          </a>
+        </div>
+        <div class="grid-item relative group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-6 h-6 rounded-full bg-cocoa-700 text-white text-xs leading-6" style="display:none">&times;</button>
+          <a href="#" class="img-zoom block editable-img relative">
+            <img src="https://placehold.co/700x880/A8CDEC/2A1810?text=Trending+3" alt="Trending look 3" class="w-full h-80 sm:h-[440px] object-cover" />
+            <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-xs font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change Image</button>
+            <input type="file" accept="image/*" class="img-file-input hidden" />
+          </a>
+        </div>
+        <button type="button" class="admin-only border-2 border-dashed border-cocoa-300 text-cocoa-500 text-xs font-bold uppercase items-center justify-center w-full h-80 sm:h-[440px]" style="display:none" data-on-display="flex" data-add-template="tpl-add-trending" data-add-target="trendingGrid">+ Add Image</button>
       </div>
     </div>
   </section>
@@ -207,32 +424,75 @@
   <!-- Shop by trend -->
   <section class="bg-white pb-10 sm:pb-12">
     <div class="max-w-[1400px] mx-auto px-5 sm:px-8">
-      <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700 mb-6">Shop By Trend</h2>
-      <div class="grid grid-cols-3 sm:grid-cols-6 gap-1">
-        <a href="#" class="block">
-          <div class="img-zoom"><img src="https://placehold.co/360x460/E3E0D5/2A1810?text=Neutrals" alt="Neutrals" class="w-full h-44 sm:h-56 object-cover" /></div>
-          <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center">Neutrals</p>
-        </a>
-        <a href="#" class="block">
-          <div class="img-zoom"><img src="https://placehold.co/360x460/A8CDEC/2A1810?text=Florals" alt="Florals" class="w-full h-44 sm:h-56 object-cover" /></div>
-          <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center">Florals</p>
-        </a>
-        <a href="#" class="block">
-          <div class="img-zoom"><img src="https://placehold.co/360x460/F6DD8B/2A1810?text=Linen" alt="Linen" class="w-full h-44 sm:h-56 object-cover" /></div>
-          <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center">Linen</p>
-        </a>
-        <a href="#" class="block">
-          <div class="img-zoom"><img src="https://placehold.co/360x460/2A1810/FAF6EF?text=Mono" alt="Monochrome" class="w-full h-44 sm:h-56 object-cover" /></div>
-          <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center">Monochrome</p>
-        </a>
-        <a href="#" class="block">
-          <div class="img-zoom"><img src="https://placehold.co/360x460/F3E9DF/4A2E1F?text=Pastels" alt="Soft Pastels" class="w-full h-44 sm:h-56 object-cover" /></div>
-          <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center">Soft Pastels</p>
-        </a>
-        <a href="#" class="block">
-          <div class="img-zoom"><img src="https://placehold.co/360x460/9C6E4E/FAF6EF?text=Earth" alt="Earth Tones" class="w-full h-44 sm:h-56 object-cover" /></div>
-          <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center">Earth Tones</p>
-        </a>
+      <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700 mb-6" data-editable="text">Shop By Trend</h2>
+      <div id="trendGrid" class="grid grid-cols-3 sm:grid-cols-6 gap-1">
+        <div class="grid-item relative group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="block">
+            <div class="img-zoom editable-img relative">
+              <img src="https://placehold.co/360x460/E3E0D5/2A1810?text=Neutrals" alt="Neutrals" class="w-full h-44 sm:h-56 object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center" data-editable="text">Neutrals</p>
+          </a>
+        </div>
+        <div class="grid-item relative group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="block">
+            <div class="img-zoom editable-img relative">
+              <img src="https://placehold.co/360x460/A8CDEC/2A1810?text=Florals" alt="Florals" class="w-full h-44 sm:h-56 object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center" data-editable="text">Florals</p>
+          </a>
+        </div>
+        <div class="grid-item relative group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="block">
+            <div class="img-zoom editable-img relative">
+              <img src="https://placehold.co/360x460/F6DD8B/2A1810?text=Linen" alt="Linen" class="w-full h-44 sm:h-56 object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center" data-editable="text">Linen</p>
+          </a>
+        </div>
+        <div class="grid-item relative group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="block">
+            <div class="img-zoom editable-img relative">
+              <img src="https://placehold.co/360x460/2A1810/FAF6EF?text=Mono" alt="Monochrome" class="w-full h-44 sm:h-56 object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center" data-editable="text">Monochrome</p>
+          </a>
+        </div>
+        <div class="grid-item relative group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="block">
+            <div class="img-zoom editable-img relative">
+              <img src="https://placehold.co/360x460/F3E9DF/4A2E1F?text=Pastels" alt="Soft Pastels" class="w-full h-44 sm:h-56 object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center" data-editable="text">Soft Pastels</p>
+          </a>
+        </div>
+        <div class="grid-item relative group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="block">
+            <div class="img-zoom editable-img relative">
+              <img src="https://placehold.co/360x460/9C6E4E/FAF6EF?text=Earth" alt="Earth Tones" class="w-full h-44 sm:h-56 object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center" data-editable="text">Earth Tones</p>
+          </a>
+        </div>
+        <button type="button" class="admin-only border-2 border-dashed border-cocoa-300 text-cocoa-500 text-[10px] font-bold uppercase items-center justify-center w-full h-44 sm:h-56" style="display:none" data-on-display="flex" data-add-template="tpl-add-shoptrend" data-add-target="trendGrid">+ Add</button>
       </div>
     </div>
   </section>
@@ -240,17 +500,33 @@
   <!-- Featured -->
   <section class="bg-white pb-10 sm:pb-12">
     <div class="max-w-[1400px] mx-auto px-5 sm:px-8">
-      <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700 mb-6">Featured</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-1">
-        <a href="#" class="img-zoom block">
-          <img src="https://placehold.co/700x500/F3E9DF/4A2E1F?text=Featured+1" alt="Featured collection 1" class="w-full h-60 sm:h-72 object-cover" />
-        </a>
-        <a href="#" class="img-zoom block">
-          <img src="https://placehold.co/700x500/CBA98A/2A1810?text=Featured+2" alt="Featured collection 2" class="w-full h-60 sm:h-72 object-cover" />
-        </a>
-        <a href="#" class="img-zoom block">
-          <img src="https://placehold.co/700x500/2A1810/FAF6EF?text=Featured+3" alt="Featured collection 3" class="w-full h-60 sm:h-72 object-cover" />
-        </a>
+      <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700 mb-6" data-editable="text">Featured</h2>
+      <div id="featuredGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-1">
+        <div class="grid-item relative group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-6 h-6 rounded-full bg-cocoa-700 text-white text-xs leading-6" style="display:none">&times;</button>
+          <a href="#" class="img-zoom block editable-img relative">
+            <img src="https://placehold.co/700x500/F3E9DF/4A2E1F?text=Featured+1" alt="Featured collection 1" class="w-full h-60 sm:h-72 object-cover" />
+            <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-xs font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change Image</button>
+            <input type="file" accept="image/*" class="img-file-input hidden" />
+          </a>
+        </div>
+        <div class="grid-item relative group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-6 h-6 rounded-full bg-cocoa-700 text-white text-xs leading-6" style="display:none">&times;</button>
+          <a href="#" class="img-zoom block editable-img relative">
+            <img src="https://placehold.co/700x500/CBA98A/2A1810?text=Featured+2" alt="Featured collection 2" class="w-full h-60 sm:h-72 object-cover" />
+            <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-xs font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change Image</button>
+            <input type="file" accept="image/*" class="img-file-input hidden" />
+          </a>
+        </div>
+        <div class="grid-item relative group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-6 h-6 rounded-full bg-cocoa-700 text-white text-xs leading-6" style="display:none">&times;</button>
+          <a href="#" class="img-zoom block editable-img relative">
+            <img src="https://placehold.co/700x500/2A1810/FAF6EF?text=Featured+3" alt="Featured collection 3" class="w-full h-60 sm:h-72 object-cover" />
+            <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-xs font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change Image</button>
+            <input type="file" accept="image/*" class="img-file-input hidden" />
+          </a>
+        </div>
+        <button type="button" class="admin-only border-2 border-dashed border-cocoa-300 text-cocoa-500 text-xs font-bold uppercase items-center justify-center w-full h-60 sm:h-72" style="display:none" data-on-display="flex" data-add-template="tpl-add-featured" data-add-target="featuredGrid">+ Add Image</button>
       </div>
     </div>
   </section>
@@ -258,74 +534,130 @@
   <!-- Occasion edit circles -->
   <section class="bg-ecru py-10 sm:py-12">
     <div class="max-w-[1400px] mx-auto px-5 sm:px-8">
-      <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700 mb-7">Occasion Edit</h2>
-      <div class="flex gap-6 sm:gap-8 overflow-x-auto pb-2 lg:grid lg:grid-cols-11 lg:gap-4">
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/F6DD8B/2A1810?text=Eid" alt="Eid Edit" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Eid Edit</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/E3CDB8/4A2E1F?text=Wedding" alt="Wedding Guest" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Wedding Guest</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/A8CDEC/2A1810?text=Ramadan" alt="Ramadan Edit" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Ramadan Edit</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/CBA98A/2A1810?text=Maxi" alt="Maxi Dresses" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Maxi Dresses</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/9C6E4E/FAF6EF?text=Kaftans" alt="Kaftans" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Kaftans</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/2A1810/FAF6EF?text=Evening" alt="Evening Wear" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Evening Wear</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/E3CDB8/4A2E1F?text=Flats" alt="Flats" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Flats</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/6E4530/FAF6EF?text=Heels" alt="Heels" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Heels</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/F6DD8B/2A1810?text=Bags" alt="Bags" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Bags</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/A8CDEC/2A1810?text=Wraps" alt="Head Wraps" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Head Wraps</p>
-        </a>
-        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
-          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
-            <img src="https://placehold.co/220x220/CBA98A/2A1810?text=Jewellery" alt="Jewellery" class="w-full h-full object-cover" />
-          </div>
-          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Jewellery</p>
-        </a>
+      <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700 mb-7" data-editable="text">Occasion Edit</h2>
+      <div id="occasionRow" class="flex gap-6 sm:gap-8 overflow-x-auto pb-2 lg:flex-wrap">
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/F6DD8B/2A1810?text=Eid" alt="Eid Edit" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Eid Edit</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/E3CDB8/4A2E1F?text=Wedding" alt="Wedding Guest" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Wedding Guest</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/A8CDEC/2A1810?text=Ramadan" alt="Ramadan Edit" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Ramadan Edit</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/CBA98A/2A1810?text=Maxi" alt="Maxi Dresses" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Maxi Dresses</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/9C6E4E/FAF6EF?text=Kaftans" alt="Kaftans" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Kaftans</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/2A1810/FAF6EF?text=Evening" alt="Evening Wear" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Evening Wear</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/E3CDB8/4A2E1F?text=Flats" alt="Flats" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Flats</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/6E4530/FAF6EF?text=Heels" alt="Heels" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Heels</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/F6DD8B/2A1810?text=Bags" alt="Bags" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Bags</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/A8CDEC/2A1810?text=Wraps" alt="Head Wraps" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Head Wraps</p>
+          </a>
+        </div>
+        <div class="circle-cat-item relative shrink-0 w-24 sm:w-28 group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full bg-cocoa-700 text-white text-[11px] leading-5" style="display:none">&times;</button>
+          <a href="#" class="circle-cat text-center block">
+            <div class="editable-img relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+              <img src="https://placehold.co/220x220/CBA98A/2A1810?text=Jewellery" alt="Jewellery" class="w-full h-full object-cover" />
+              <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-[10px] font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change</button>
+              <input type="file" accept="image/*" class="img-file-input hidden" />
+            </div>
+            <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700" data-editable="text">Jewellery</p>
+          </a>
+        </div>
+        <button type="button" class="admin-only shrink-0 w-24 sm:w-28 h-24 sm:h-28 rounded-full border-2 border-dashed border-cocoa-300 text-cocoa-500 text-xs font-bold uppercase items-center justify-center" style="display:none" data-on-display="flex" data-add-template="tpl-add-circle" data-add-target="occasionRow">+ Add</button>
       </div>
     </div>
   </section>
@@ -334,19 +666,38 @@
   <section class="bg-white py-10 sm:py-12">
     <div class="max-w-[1400px] mx-auto px-5 sm:px-8">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700">Discover ZIHAY</h2>
-        <a href="#" class="text-[12px] font-bold uppercase tracking-wide text-cocoa-700 underline hover:text-cocoa-500">Shop All</a>
+        <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700" data-editable="text">Discover ZIHAY</h2>
+        <div class="flex items-center gap-2">
+          <a href="#" class="text-[12px] font-bold uppercase tracking-wide text-cocoa-700 underline hover:text-cocoa-500" data-editable="text">Shop All</a>
+          <button type="button" class="admin-only link-edit-btn text-cocoa-400 text-[10px]" style="display:none" data-on-display="inline-flex" title="Edit link URL">&#128279;</button>
+        </div>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-1">
-        <a href="#" class="img-zoom block">
-          <img src="https://placehold.co/640x800/F3E9DF/4A2E1F?text=Lookbook+1" alt="ZIHAY lookbook 1" class="w-full h-72 sm:h-96 object-cover" />
-        </a>
-        <a href="#" class="img-zoom block">
-          <img src="https://placehold.co/640x800/E3CDB8/2A1810?text=Lookbook+2" alt="ZIHAY lookbook 2" class="w-full h-72 sm:h-96 object-cover" />
-        </a>
-        <a href="#" class="img-zoom block">
-          <img src="https://placehold.co/640x800/CBA98A/2A1810?text=Lookbook+3" alt="ZIHAY lookbook 3" class="w-full h-72 sm:h-96 object-cover" />
-        </a>
+      <div id="discoverGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-1">
+        <div class="grid-item relative group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-6 h-6 rounded-full bg-cocoa-700 text-white text-xs leading-6" style="display:none">&times;</button>
+          <a href="#" class="img-zoom block editable-img relative">
+            <img src="https://placehold.co/640x800/F3E9DF/4A2E1F?text=Lookbook+1" alt="ZIHAY lookbook 1" class="w-full h-72 sm:h-96 object-cover" />
+            <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-xs font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change Image</button>
+            <input type="file" accept="image/*" class="img-file-input hidden" />
+          </a>
+        </div>
+        <div class="grid-item relative group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-6 h-6 rounded-full bg-cocoa-700 text-white text-xs leading-6" style="display:none">&times;</button>
+          <a href="#" class="img-zoom block editable-img relative">
+            <img src="https://placehold.co/640x800/E3CDB8/2A1810?text=Lookbook+2" alt="ZIHAY lookbook 2" class="w-full h-72 sm:h-96 object-cover" />
+            <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-xs font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change Image</button>
+            <input type="file" accept="image/*" class="img-file-input hidden" />
+          </a>
+        </div>
+        <div class="grid-item relative group">
+          <button type="button" class="admin-only remove-item absolute -top-2 -right-2 z-20 w-6 h-6 rounded-full bg-cocoa-700 text-white text-xs leading-6" style="display:none">&times;</button>
+          <a href="#" class="img-zoom block editable-img relative">
+            <img src="https://placehold.co/640x800/CBA98A/2A1810?text=Lookbook+3" alt="ZIHAY lookbook 3" class="w-full h-72 sm:h-96 object-cover" />
+            <button type="button" class="admin-only img-edit-btn absolute inset-0 items-center justify-center bg-black/40 text-white text-xs font-bold uppercase tracking-wide" style="display:none" data-on-display="flex">Change Image</button>
+            <input type="file" accept="image/*" class="img-file-input hidden" />
+          </a>
+        </div>
+        <button type="button" class="admin-only border-2 border-dashed border-cocoa-300 text-cocoa-500 text-xs font-bold uppercase items-center justify-center w-full h-72 sm:h-96" style="display:none" data-on-display="flex" data-add-template="tpl-add-discover" data-add-target="discoverGrid">+ Add Image</button>
       </div>
     </div>
   </section>
@@ -395,8 +746,188 @@
   </div>
   <div class="border-t border-cream/15 py-5 text-center text-xs text-cream/60">
     © 2026 ZIHAY. All rights reserved. Crafted for comfort. Designed for modesty.
+    <button type="button" id="adminDot" aria-label="Admin" class="w-2 h-2 rounded-full bg-cream/20 hover:bg-honey-300 transition-colors inline-block ml-2 align-middle"></button>
   </div>
 </footer>
+
+<script>
+(function(){
+  const ADMIN_EMAIL = 'yousefaljailey@gmail.com';
+  const ADMIN_PASS  = 'Yy12345678!';
+  const CLOUD_NAME  = 'dp6x1cfmj';
+  const UPLOAD_PRESET = 'Zihaywomen';
+  const GH_OWNER = 'yousefaljailey';
+  const GH_REPO  = 'Zihay';
+  const GH_BRANCH = 'main';
+  const GH_FILE  = 'index.html';
+  const GH_TOKEN_KEY = 'zihay_gh_token';
+
+  let isAdmin = false;
+
+  const $ = (sel, root) => (root || document).querySelector(sel);
+  const $all = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+
+  function showLogin(){ $('#loginModalBg').style.display = 'block'; $('#lmErr').textContent = ''; $('#lmEmail').focus(); }
+  function hideLogin(){ $('#loginModalBg').style.display = 'none'; }
+
+  function setAdminMode(on){
+    isAdmin = on;
+    document.body.classList.toggle('admin-mode', on);
+    $all('.admin-only').forEach(el => { el.style.display = on ? (el.dataset.onDisplay || 'inline-flex') : 'none'; });
+    $all('[data-editable="text"]').forEach(el => { el.contentEditable = on ? 'true' : 'false'; });
+    $('#adminBar').style.display = on ? 'flex' : 'none';
+    document.body.style.paddingTop = on ? '40px' : '0px';
+    const header = $('#siteHeader');
+    if (header) header.style.top = on ? '40px' : '0px';
+  }
+
+  function doLogin(){
+    const email = $('#lmEmail').value.trim();
+    const pass = $('#lmPass').value;
+    if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
+      hideLogin();
+      setAdminMode(true);
+    } else {
+      $('#lmErr').textContent = 'Incorrect email or password. Please try again.';
+    }
+  }
+
+  function doLogout(){
+    setAdminMode(false);
+  }
+
+  async function cloudinaryUpload(file){
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', UPLOAD_PRESET);
+    const res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload', { method: 'POST', body: fd });
+    if (!res.ok) throw new Error('Cloudinary upload failed (' + res.status + ')');
+    const data = await res.json();
+    return data.secure_url;
+  }
+
+  document.addEventListener('click', async (e) => {
+    const removeBtn = e.target.closest('.remove-item');
+    if (removeBtn && isAdmin) {
+      e.preventDefault();
+      const item = removeBtn.closest('.circle-cat-item, .grid-item, .nav-item-wrap');
+      if (item && confirm('Remove this item?')) item.remove();
+      return;
+    }
+
+    const imgEditBtn = e.target.closest('.img-edit-btn');
+    if (imgEditBtn && isAdmin) {
+      e.preventDefault();
+      const wrap = imgEditBtn.closest('.editable-img');
+      const input = wrap ? wrap.querySelector('.img-file-input') : null;
+      if (input) input.click();
+      return;
+    }
+
+    const linkEditBtn = e.target.closest('.link-edit-btn');
+    if (linkEditBtn && isAdmin) {
+      e.preventDefault();
+      const a = linkEditBtn.parentElement.querySelector('a');
+      if (a) {
+        const url = prompt('Link URL', a.getAttribute('href') || '#');
+        if (url !== null) a.setAttribute('href', url);
+      }
+      return;
+    }
+
+    const addBtn = e.target.closest('[data-add-template]');
+    if (addBtn && isAdmin) {
+      e.preventDefault();
+      const tpl = document.getElementById(addBtn.dataset.addTemplate);
+      const target = document.getElementById(addBtn.dataset.addTarget);
+      if (!tpl || !target) return;
+      const clone = tpl.content.firstElementChild.cloneNode(true);
+      target.appendChild(clone);
+      setAdminMode(true);
+      return;
+    }
+  });
+
+  document.addEventListener('change', async (e) => {
+    if (e.target.classList.contains('img-file-input') && isAdmin) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const wrap = e.target.closest('.editable-img');
+      const img = wrap ? wrap.querySelector('img') : null;
+      const btn = wrap ? wrap.querySelector('.img-edit-btn') : null;
+      const original = btn ? btn.textContent : '';
+      if (btn) btn.textContent = 'Uploading...';
+      try {
+        const url = await cloudinaryUpload(file);
+        if (img) img.src = url;
+      } catch (err) {
+        alert('Image upload failed: ' + err.message);
+      } finally {
+        if (btn) btn.textContent = original;
+        e.target.value = '';
+      }
+    }
+  });
+
+  async function pushToGitHub(){
+    let token = localStorage.getItem(GH_TOKEN_KEY);
+    if (!token) {
+      token = prompt('Paste your GitHub Personal Access Token (needs "repo" scope). It is saved only in this browser.');
+      if (!token) return;
+      localStorage.setItem(GH_TOKEN_KEY, token);
+    }
+    const publishBtn = $('#publishBtn');
+    const originalLabel = publishBtn.textContent;
+    publishBtn.textContent = 'Publishing...';
+    publishBtn.disabled = true;
+    try {
+      setAdminMode(false);
+      const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      setAdminMode(true);
+
+      const apiBase = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_FILE;
+      const getRes = await fetch(apiBase + '?ref=' + GH_BRANCH, { headers: { Authorization: 'token ' + token } });
+      if (!getRes.ok) throw new Error('Could not read current file (status ' + getRes.status + '). Check your token has access to ' + GH_OWNER + '/' + GH_REPO + '.');
+      const getData = await getRes.json();
+
+      const b64 = btoa(unescape(encodeURIComponent(html)));
+      const putRes = await fetch(apiBase, {
+        method: 'PUT',
+        headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: 'Update ZIHAY content via admin panel',
+          content: b64,
+          sha: getData.sha,
+          branch: GH_BRANCH
+        })
+      });
+      if (!putRes.ok) {
+        const errData = await putRes.json().catch(() => ({}));
+        throw new Error(errData.message || ('GitHub push failed (status ' + putRes.status + ')'));
+      }
+      alert('Published! Your changes are committed to GitHub and will go live shortly.');
+    } catch (err) {
+      alert('Publish failed: ' + err.message);
+    } finally {
+      publishBtn.textContent = originalLabel;
+      publishBtn.disabled = false;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    $('#adminDot').addEventListener('click', showLogin);
+    $('#lmClose').addEventListener('click', hideLogin);
+    $('#lmSubmit').addEventListener('click', doLogin);
+    $('#lmPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
+    $('#logoutBtn').addEventListener('click', doLogout);
+    $('#publishBtn').addEventListener('click', pushToGitHub);
+    $('#changeTokenBtn').addEventListener('click', () => {
+      localStorage.removeItem(GH_TOKEN_KEY);
+      alert('Saved GitHub token cleared. You will be asked to paste it again on next publish.');
+    });
+  });
+})();
+</script>
 
 </body>
 </html>
