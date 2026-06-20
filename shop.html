@@ -6,7 +6,7 @@
 <title>Shop the Collection — ZIHAY</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
@@ -21,7 +21,7 @@
         },
         fontFamily: {
           serif: ['Fraunces','serif'],
-          sans: ['Inter','sans-serif']
+          sans: ['Poppins','sans-serif']
         }
       }
     }
@@ -30,13 +30,15 @@
 <style>
   html { scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; }
   html::-webkit-scrollbar { display: none; }
-  body { font-family:'Inter',sans-serif; background:#FAF6EF; color:#2A1810; }
+  body { font-family:'Poppins',sans-serif; background:#FAF6EF; color:#2A1810; }
   .font-serif { font-family:'Fraunces',serif; }
 
   .filter-pill { transition: background-color .2s, color .2s, border-color .2s; }
   .filter-pill.active { background:#3A2218; color:#FAF6EF; border-color:#3A2218; }
 
-  .gradient-card { position:relative; overflow:hidden; }
+  .gradient-card { position:relative; overflow:hidden; cursor:pointer; }
+  .product-card h4 { cursor:pointer; }
+  .product-card h4:hover { text-decoration: underline; }
   .gradient-card::before {
     content:''; position:absolute; inset:0;
     background: radial-gradient(circle at 78% 12%, rgba(255,255,255,0.65), transparent 42%),
@@ -102,7 +104,7 @@
 <main class="max-w-[1500px] mx-auto px-5 sm:px-8 py-10">
   <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-cocoa-200/40">
 
-    <div class="product-card bg-cream" data-cat="abayas" data-price="184">
+    <div class="product-card bg-cream" data-cat="abayas" data-price="184" data-slug="powder-sunday-abaya">
       <div class="gradient-card h-[420px]" style="--c1:#C7E1F4; --c2:#A8CDEC;">
         <span class="absolute top-4 left-4 bg-white text-cocoa-700 text-[10px] font-bold uppercase tracking-wide px-3 py-1 rounded-full">New</span>
         <h3 class="font-serif text-3xl text-cocoa-700 absolute bottom-5 left-5 right-5">Powder Sunday</h3>
@@ -118,7 +120,7 @@
       </div>
     </div>
 
-    <div class="product-card bg-cream" data-cat="dresses" data-price="142">
+    <div class="product-card bg-cream" data-cat="dresses" data-price="142" data-slug="butter-garden-dress">
       <div class="gradient-card h-[420px]" style="--c1:#FAF0D2; --c2:#F6DD8B;">
         <h3 class="font-serif text-3xl text-cocoa-700 absolute bottom-5 left-5 right-5">Butter Garden</h3>
       </div>
@@ -133,7 +135,7 @@
       </div>
     </div>
 
-    <div class="product-card bg-cream" data-cat="sets" data-price="198">
+    <div class="product-card bg-cream" data-cat="sets" data-price="198" data-slug="espresso-tailored-set">
       <div class="gradient-card h-[420px]" style="--c1:#6E4530; --c2:#2A1810;">
         <h3 class="font-serif text-3xl text-cream absolute bottom-5 left-5 right-5">Espresso Tailored</h3>
       </div>
@@ -148,7 +150,7 @@
       </div>
     </div>
 
-    <div class="product-card bg-cream" data-cat="outerwear" data-price="224">
+    <div class="product-card bg-cream" data-cat="outerwear" data-price="224" data-slug="soft-cloud-trench">
       <div class="gradient-card h-[420px]" style="--c1:#FBF7F3; --c2:#E2EFFA;">
         <span class="absolute top-4 left-4 text-cocoa-600 text-[10px] font-bold uppercase tracking-wide">Editor's Pick</span>
         <h3 class="font-serif text-3xl text-cocoa-700 absolute bottom-5 left-5 right-5">Soft Cloud</h3>
@@ -164,7 +166,7 @@
       </div>
     </div>
 
-    <div class="product-card bg-cream" data-cat="abayas" data-price="176">
+    <div class="product-card bg-cream" data-cat="abayas" data-price="176" data-slug="linen-horizon-abaya">
       <div class="gradient-card h-[420px]" style="--c1:#E3CDB8; --c2:#CBA98A;">
         <h3 class="font-serif text-3xl text-cocoa-700 absolute bottom-5 left-5 right-5">Linen Horizon</h3>
       </div>
@@ -179,7 +181,7 @@
       </div>
     </div>
 
-    <div class="product-card bg-cream" data-cat="abayas" data-price="168">
+    <div class="product-card bg-cream" data-cat="abayas" data-price="168" data-slug="sand-dune-abaya">
       <div class="gradient-card h-[420px]" style="--c1:#F3E9DF; --c2:#E3CDB8;">
         <h3 class="font-serif text-3xl text-cocoa-700 absolute bottom-5 left-5 right-5">Sand Dune</h3>
       </div>
@@ -194,7 +196,7 @@
       </div>
     </div>
 
-    <div class="product-card bg-cream" data-cat="dresses" data-price="156">
+    <div class="product-card bg-cream" data-cat="dresses" data-price="156" data-slug="rosewater-midi-dress">
       <div class="gradient-card h-[420px]" style="--c1:#F6DD8B; --c2:#E3CDB8;">
         <h3 class="font-serif text-3xl text-cocoa-700 absolute bottom-5 left-5 right-5">Rosewater Midi</h3>
       </div>
@@ -209,7 +211,7 @@
       </div>
     </div>
 
-    <div class="product-card bg-cream" data-cat="sets" data-price="188">
+    <div class="product-card bg-cream" data-cat="sets" data-price="188" data-slug="honeycomb-co-ord">
       <div class="gradient-card h-[420px]" style="--c1:#DDAE3A; --c2:#9C6E4E;">
         <h3 class="font-serif text-3xl text-cream absolute bottom-5 left-5 right-5">Honeycomb</h3>
       </div>
@@ -224,7 +226,7 @@
       </div>
     </div>
 
-    <div class="product-card bg-cream" data-cat="sets" data-price="172">
+    <div class="product-card bg-cream" data-cat="sets" data-price="172" data-slug="sky-wrap-set">
       <div class="gradient-card h-[420px]" style="--c1:#A8CDEC; --c2:#E2EFFA;">
         <h3 class="font-serif text-3xl text-cocoa-700 absolute bottom-5 left-5 right-5">Sky Wrap</h3>
       </div>
@@ -239,7 +241,7 @@
       </div>
     </div>
 
-    <div class="product-card bg-cream" data-cat="outerwear" data-price="248">
+    <div class="product-card bg-cream" data-cat="outerwear" data-price="248" data-slug="cocoa-wool-coat">
       <div class="gradient-card h-[420px]" style="--c1:#3A2218; --c2:#6E4530;">
         <h3 class="font-serif text-3xl text-cream absolute bottom-5 left-5 right-5">Cocoa Wool</h3>
       </div>
@@ -254,7 +256,7 @@
       </div>
     </div>
 
-    <div class="product-card bg-cream" data-cat="scarves" data-price="58">
+    <div class="product-card bg-cream" data-cat="scarves" data-price="58" data-slug="butter-silk-scarf">
       <div class="gradient-card h-[420px]" style="--c1:#F6DD8B; --c2:#FAF0D2;">
         <h3 class="font-serif text-3xl text-cocoa-700 absolute bottom-5 left-5 right-5">Butter Silk</h3>
       </div>
@@ -269,7 +271,7 @@
       </div>
     </div>
 
-    <div class="product-card bg-cream" data-cat="scarves" data-price="42">
+    <div class="product-card bg-cream" data-cat="scarves" data-price="42" data-slug="powder-modal-scarf">
       <div class="gradient-card h-[420px]" style="--c1:#C7E1F4; --c2:#F3F8FD;">
         <h3 class="font-serif text-3xl text-cocoa-700 absolute bottom-5 left-5 right-5">Powder Modal</h3>
       </div>
@@ -321,7 +323,9 @@
   const $ = (sel, root) => (root || document).querySelector(sel);
   const $all = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 
-  let bagCount = 0;
+  const BAG_KEY = 'zihay_bag_count';
+  let bagCount = Number(localStorage.getItem(BAG_KEY) || '0');
+  $('#bagCount').textContent = bagCount;
   let activeFilter = 'all';
 
   function applyFilter(cat){
@@ -353,9 +357,16 @@
   $('#sortSelect').addEventListener('change', (e) => applySort(e.target.value));
 
   document.addEventListener('click', (e) => {
-    if (e.target.closest('.quick-add')) {
+    const quickAdd = e.target.closest('.quick-add');
+    if (quickAdd) {
       bagCount++;
       $('#bagCount').textContent = bagCount;
+      localStorage.setItem(BAG_KEY, bagCount);
+      return;
+    }
+    const card = e.target.closest('.product-card');
+    if (card && (e.target.closest('.gradient-card') || e.target.closest('h4'))) {
+      window.location.href = 'product.html?slug=' + card.dataset.slug;
     }
   });
 
