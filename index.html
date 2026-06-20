@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ZIHAY — Modest Womenswear</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          cocoa: { 50:'#FBF7F3', 100:'#F3E9DF', 200:'#E3CDB8', 300:'#CBA98A', 400:'#9C6E4E', 500:'#6E4530', 600:'#4A2E1F', 700:'#3A2218', 800:'#2A1810', 900:'#1B0F0A' },
+          sky:  { 50:'#F3F8FD', 100:'#E2EFFA', 200:'#C7E1F4', 300:'#A8CDEC', 400:'#8AB6DE', 500:'#6B9CCB' },
+          honey:{ 50:'#FDF9EE', 100:'#FAF0D2', 200:'#F6DD8B', 300:'#EFC85C', 400:'#DDAE3A' },
+          cream: '#FAF6EF',
+          ecru: '#F3F0E9'
+        },
+        fontFamily: {
+          sans: ['Inter','sans-serif']
+        }
+      }
+    }
+  }
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { font-family:'Inter',sans-serif; background:#FFFFFF; color:#2A1810; }
+
+  .nav-link { position:relative; transition: color .25s; }
+  .nav-link::after {
+    content:''; position:absolute; left:0; bottom:-18px; width:100%; height:2px; background:#4A2E1F;
+    transform: scaleX(0); transform-origin:center; transition: transform .25s ease;
+  }
+  .nav-link:hover::after, .nav-link.active::after { transform: scaleX(1); }
+  .nav-link.active { color:#4A2E1F; }
+
+  .img-zoom { overflow:hidden; }
+  .img-zoom img { transition: transform .5s ease; }
+  .img-zoom:hover img { transform: scale(1.04); }
+
+  .circle-cat img { transition: transform .4s ease; }
+  .circle-cat:hover img { transform: scale(1.08); }
+
+  input:focus-visible, a:focus-visible, button:focus-visible { outline: 2px solid #4A2E1F; outline-offset: 2px; }
+</style>
+</head>
+<body class="antialiased">
+
+<!-- Promo bar -->
+<div class="bg-cocoa-700 text-cream text-center text-[12px] sm:text-[13px] font-medium py-2 tracking-wide relative">
+  Free shipping on all orders over $90*
+  <span class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-honey-300 hidden sm:inline-block"></span>
+</div>
+
+<!-- Header -->
+<header class="bg-white sticky top-0 z-40">
+  <div class="max-w-[1400px] mx-auto px-5 sm:px-8 py-4 flex items-center justify-between gap-4">
+    <div class="hidden md:flex items-center w-72">
+      <div class="relative w-full">
+        <input type="text" placeholder="Search for anything here..." class="w-full h-10 rounded border border-cocoa-200 pl-4 pr-10 text-sm placeholder-cocoa-400 focus-visible:outline-none focus-visible:border-cocoa-500" />
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A2E1F" stroke-width="2" class="absolute right-3 top-1/2 -translate-y-1/2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+    </div>
+
+    <a href="#top" class="shrink-0 mx-auto md:mx-0">
+      <img src="zihay logo.png" alt="ZIHAY" class="h-7 sm:h-8 w-auto" />
+    </a>
+
+    <div class="flex items-center gap-5 sm:gap-6">
+      <button aria-label="Wishlist" class="hidden sm:inline-flex text-cocoa-700">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-8-5.2-8-11.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 8 3.5C20 15.8 12 21 12 21z"/></svg>
+      </button>
+      <button aria-label="Account" class="hidden sm:inline-flex text-cocoa-700">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+      </button>
+      <button aria-label="Bag" class="relative inline-flex text-cocoa-700">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6h15l-1.5 9h-13z"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/><path d="M6 6l-1-3H2"/></svg>
+        <span class="absolute -top-1.5 -right-1.5 bg-cocoa-700 text-cream text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">2</span>
+      </button>
+      <a href="#" class="hidden sm:inline-flex items-center bg-cocoa-600 text-cream rounded px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-cocoa-700 transition-colors">Checkout</a>
+    </div>
+  </div>
+
+  <nav class="border-t border-cocoa-100">
+    <div class="max-w-[1400px] mx-auto px-5 sm:px-8 flex items-center justify-center gap-6 sm:gap-9 overflow-x-auto">
+      <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap">New In</a>
+      <a href="#categories" class="nav-link active py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap">Dresses</a>
+      <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap">Activewear</a>
+      <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap">Swimwear</a>
+      <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap">Everyday</a>
+      <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap">Accessories</a>
+      <a href="#" class="nav-link py-4 text-[13px] font-bold uppercase tracking-wide text-cocoa-700 whitespace-nowrap">Occasion</a>
+      <a href="#" class="py-4 text-[13px] font-bold uppercase tracking-wide text-honey-400 whitespace-nowrap hover:text-honey-300 transition-colors">Sale</a>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- Hero -->
+  <section class="relative">
+    <img src="https://placehold.co/1900x700/CBA98A/CBA98A" alt="ZIHAY new season campaign" class="w-full h-[420px] sm:h-[560px] lg:h-[650px] object-cover" />
+    <div class="absolute inset-0 bg-gradient-to-t from-cocoa-900/55 via-transparent to-transparent"></div>
+    <div class="absolute left-5 sm:left-12 bottom-10 sm:bottom-14 max-w-xl">
+      <h1 class="text-white font-extrabold uppercase tracking-tight text-3xl sm:text-5xl lg:text-6xl leading-[1.05]">New Season<br/>Must Haves</h1>
+      <a href="#categories" class="inline-flex items-center bg-white text-cocoa-700 mt-6 px-6 py-3 text-xs font-bold uppercase tracking-wider hover:bg-cream transition-colors">Shop Now</a>
+    </div>
+  </section>
+
+  <!-- Category circles -->
+  <section id="categories" class="bg-ecru py-10 sm:py-12">
+    <div class="max-w-[1400px] mx-auto px-5 sm:px-8">
+      <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700 mb-7">ZIHAY Women's</h2>
+      <div class="flex gap-6 sm:gap-8 overflow-x-auto pb-2 lg:grid lg:grid-cols-11 lg:gap-4">
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/E3CDB8/4A2E1F?text=Dress" alt="Dresses" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Dresses</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/A8CDEC/2A1810?text=Abaya" alt="Abayas" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Abayas</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/F6DD8B/2A1810?text=Active" alt="Activewear" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Activewear</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/9C6E4E/FAF6EF?text=Swim" alt="Swimwear" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Swimwear</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/CBA98A/2A1810?text=Tops" alt="Tops & Tunics" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Tops &amp; Tunics</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/E3CDB8/4A2E1F?text=Trousers" alt="Trousers" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Trousers</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/A8CDEC/2A1810?text=Skirts" alt="Skirts" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Skirts</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/F6DD8B/2A1810?text=Hijabs" alt="Hijabs & Scarves" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Hijabs &amp; Scarves</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/6E4530/FAF6EF?text=Outer" alt="Outerwear" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Outerwear</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/CBA98A/2A1810?text=Lounge" alt="Loungewear" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Loungewear</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/E3CDB8/4A2E1F?text=Acc" alt="Accessories" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Accessories</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trending now -->
+  <section class="bg-white py-10 sm:py-12">
+    <div class="max-w-[1400px] mx-auto px-5 sm:px-8">
+      <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700 mb-6">Trending Now</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-1">
+        <a href="#" class="img-zoom block">
+          <img src="https://placehold.co/700x880/E3CDB8/2A1810?text=Trending+1" alt="Trending look 1" class="w-full h-80 sm:h-[440px] object-cover" />
+        </a>
+        <a href="#" class="img-zoom block">
+          <img src="https://placehold.co/700x880/CBA98A/2A1810?text=Trending+2" alt="Trending look 2" class="w-full h-80 sm:h-[440px] object-cover" />
+        </a>
+        <a href="#" class="img-zoom block">
+          <img src="https://placehold.co/700x880/A8CDEC/2A1810?text=Trending+3" alt="Trending look 3" class="w-full h-80 sm:h-[440px] object-cover" />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Shop by trend -->
+  <section class="bg-white pb-10 sm:pb-12">
+    <div class="max-w-[1400px] mx-auto px-5 sm:px-8">
+      <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700 mb-6">Shop By Trend</h2>
+      <div class="grid grid-cols-3 sm:grid-cols-6 gap-1">
+        <a href="#" class="block">
+          <div class="img-zoom"><img src="https://placehold.co/360x460/E3E0D5/2A1810?text=Neutrals" alt="Neutrals" class="w-full h-44 sm:h-56 object-cover" /></div>
+          <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center">Neutrals</p>
+        </a>
+        <a href="#" class="block">
+          <div class="img-zoom"><img src="https://placehold.co/360x460/A8CDEC/2A1810?text=Florals" alt="Florals" class="w-full h-44 sm:h-56 object-cover" /></div>
+          <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center">Florals</p>
+        </a>
+        <a href="#" class="block">
+          <div class="img-zoom"><img src="https://placehold.co/360x460/F6DD8B/2A1810?text=Linen" alt="Linen" class="w-full h-44 sm:h-56 object-cover" /></div>
+          <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center">Linen</p>
+        </a>
+        <a href="#" class="block">
+          <div class="img-zoom"><img src="https://placehold.co/360x460/2A1810/FAF6EF?text=Mono" alt="Monochrome" class="w-full h-44 sm:h-56 object-cover" /></div>
+          <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center">Monochrome</p>
+        </a>
+        <a href="#" class="block">
+          <div class="img-zoom"><img src="https://placehold.co/360x460/F3E9DF/4A2E1F?text=Pastels" alt="Soft Pastels" class="w-full h-44 sm:h-56 object-cover" /></div>
+          <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center">Soft Pastels</p>
+        </a>
+        <a href="#" class="block">
+          <div class="img-zoom"><img src="https://placehold.co/360x460/9C6E4E/FAF6EF?text=Earth" alt="Earth Tones" class="w-full h-44 sm:h-56 object-cover" /></div>
+          <p class="mt-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide text-cocoa-700 text-center">Earth Tones</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured -->
+  <section class="bg-white pb-10 sm:pb-12">
+    <div class="max-w-[1400px] mx-auto px-5 sm:px-8">
+      <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700 mb-6">Featured</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-1">
+        <a href="#" class="img-zoom block">
+          <img src="https://placehold.co/700x500/F3E9DF/4A2E1F?text=Featured+1" alt="Featured collection 1" class="w-full h-60 sm:h-72 object-cover" />
+        </a>
+        <a href="#" class="img-zoom block">
+          <img src="https://placehold.co/700x500/CBA98A/2A1810?text=Featured+2" alt="Featured collection 2" class="w-full h-60 sm:h-72 object-cover" />
+        </a>
+        <a href="#" class="img-zoom block">
+          <img src="https://placehold.co/700x500/2A1810/FAF6EF?text=Featured+3" alt="Featured collection 3" class="w-full h-60 sm:h-72 object-cover" />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Occasion edit circles -->
+  <section class="bg-ecru py-10 sm:py-12">
+    <div class="max-w-[1400px] mx-auto px-5 sm:px-8">
+      <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700 mb-7">Occasion Edit</h2>
+      <div class="flex gap-6 sm:gap-8 overflow-x-auto pb-2 lg:grid lg:grid-cols-11 lg:gap-4">
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/F6DD8B/2A1810?text=Eid" alt="Eid Edit" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Eid Edit</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/E3CDB8/4A2E1F?text=Wedding" alt="Wedding Guest" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Wedding Guest</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/A8CDEC/2A1810?text=Ramadan" alt="Ramadan Edit" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Ramadan Edit</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/CBA98A/2A1810?text=Maxi" alt="Maxi Dresses" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Maxi Dresses</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/9C6E4E/FAF6EF?text=Kaftans" alt="Kaftans" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Kaftans</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/2A1810/FAF6EF?text=Evening" alt="Evening Wear" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Evening Wear</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/E3CDB8/4A2E1F?text=Flats" alt="Flats" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Flats</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/6E4530/FAF6EF?text=Heels" alt="Heels" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Heels</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/F6DD8B/2A1810?text=Bags" alt="Bags" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Bags</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/A8CDEC/2A1810?text=Wraps" alt="Head Wraps" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Head Wraps</p>
+        </a>
+        <a href="#" class="circle-cat shrink-0 w-24 sm:w-28 text-center group">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden mx-auto">
+            <img src="https://placehold.co/220x220/CBA98A/2A1810?text=Jewellery" alt="Jewellery" class="w-full h-full object-cover" />
+          </div>
+          <p class="mt-3 text-[11px] font-bold uppercase tracking-wide text-cocoa-700">Jewellery</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Discover ZIHAY -->
+  <section class="bg-white py-10 sm:py-12">
+    <div class="max-w-[1400px] mx-auto px-5 sm:px-8">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg sm:text-xl font-extrabold uppercase tracking-wide text-cocoa-700">Discover ZIHAY</h2>
+        <a href="#" class="text-[12px] font-bold uppercase tracking-wide text-cocoa-700 underline hover:text-cocoa-500">Shop All</a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-1">
+        <a href="#" class="img-zoom block">
+          <img src="https://placehold.co/640x800/F3E9DF/4A2E1F?text=Lookbook+1" alt="ZIHAY lookbook 1" class="w-full h-72 sm:h-96 object-cover" />
+        </a>
+        <a href="#" class="img-zoom block">
+          <img src="https://placehold.co/640x800/E3CDB8/2A1810?text=Lookbook+2" alt="ZIHAY lookbook 2" class="w-full h-72 sm:h-96 object-cover" />
+        </a>
+        <a href="#" class="img-zoom block">
+          <img src="https://placehold.co/640x800/CBA98A/2A1810?text=Lookbook+3" alt="ZIHAY lookbook 3" class="w-full h-72 sm:h-96 object-cover" />
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="bg-cocoa-700 text-cream">
+  <div class="py-8 text-center">
+    <p class="text-xs font-bold uppercase tracking-wider mb-4">Our Social Networks</p>
+    <div class="flex justify-center gap-5">
+      <a href="#" aria-label="Facebook" class="w-9 h-9 rounded-full border border-cream/30 flex items-center justify-center hover:bg-cream/10 transition-colors">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M13 22v-8h2.7l.5-3H13V9c0-1 .3-1.6 1.7-1.6H16V4.7c-.6 0-1.7-.1-2.7-.1-3 0-4.3 1.7-4.3 4.4V11H6.5v3H9v8h4z"/></svg>
+      </a>
+      <a href="#" aria-label="X" class="w-9 h-9 rounded-full border border-cream/30 flex items-center justify-center hover:bg-cream/10 transition-colors">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.4 8.5L23 22h-7l-5.5-7-6.3 7H1l8-9.2L1 2h7.2l5 6.6L18.9 2z"/></svg>
+      </a>
+      <a href="#" aria-label="TikTok" class="w-9 h-9 rounded-full border border-cream/30 flex items-center justify-center hover:bg-cream/10 transition-colors">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 2c.4 2.6 2 4.3 4.5 4.5v3.2c-1.7.1-3.2-.4-4.5-1.4v6.9a5.8 5.8 0 1 1-5.8-5.8c.3 0 .6 0 .9.1v3.3a2.6 2.6 0 1 0 1.8 2.5V2h3.1z"/></svg>
+      </a>
+      <a href="#" aria-label="Instagram" class="w-9 h-9 rounded-full border border-cream/30 flex items-center justify-center hover:bg-cream/10 transition-colors">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+      </a>
+      <a href="#" aria-label="Pinterest" class="w-9 h-9 rounded-full border border-cream/30 flex items-center justify-center hover:bg-cream/10 transition-colors">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.6 19.3c-.1-.8-.2-2.1 0-3l1.4-5.9s-.4-.7-.4-1.8c0-1.7 1-3 2.2-3 1 0 1.5.8 1.5 1.7 0 1-.7 2.6-1 4-.3 1.2.6 2.2 1.8 2.2 2.2 0 3.7-2.8 3.7-6.1 0-2.5-1.7-4.4-4.9-4.4-3.5 0-5.7 2.6-5.7 5.6 0 1 .3 1.7.7 2.3.2.2.2.3.1.6l-.3 1.1c-.1.3-.3.4-.6.3-1.6-.7-2.3-2.5-2.3-4.5 0-3.4 2.9-7.4 8.5-7.4 4.6 0 7.6 3.3 7.6 6.9 0 4.7-2.7 8.3-6.6 8.3-1.3 0-2.6-.7-3-1.6l-.8 3.3c-.3 1-.9 2.2-1.4 3A10 10 0 0 0 12 2z"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="border-t border-cream/15 grid grid-cols-2 sm:grid-cols-4 text-center divide-x divide-cream/15">
+    <div class="py-6 px-3">
+      <p class="text-sm font-bold">My Account</p>
+      <p class="text-xs text-cream/60 mt-1">Sign in to your account</p>
+    </div>
+    <div class="py-6 px-3">
+      <p class="text-sm font-bold">Change Country</p>
+      <p class="text-xs text-cream/60 mt-1">Choose your shopping location</p>
+    </div>
+    <div class="py-6 px-3">
+      <p class="text-sm font-bold">Store Locator</p>
+      <p class="text-xs text-cream/60 mt-1">Find your nearest store</p>
+    </div>
+    <div class="py-6 px-3">
+      <p class="text-sm font-bold">Start a Chat</p>
+      <p class="text-xs text-cream/60 mt-1">For general enquiries</p>
+    </div>
+  </div>
+  <div class="border-t border-cream/15 py-5 text-center text-xs text-cream/60">
+    © 2026 ZIHAY. All rights reserved. Crafted for comfort. Designed for modesty.
+  </div>
+</footer>
+
+</body>
+</html>
